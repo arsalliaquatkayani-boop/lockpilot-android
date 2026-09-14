@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">LockPilot</string>
+    <string name="device_admin_description">Lets LockPilot lock this device automatically if an installment payment becomes overdue, and unlock it automatically once payment is received.</string>
+
+    <string name="lock_title">Device Locked</string>
+    <string name="lock_body">This phone is on an active installment plan. Please contact the shop below to make a payment and unlock your device.</string>
+    <string name="lock_contact_label">Please contact</string>
+    <string name="lock_footer">Payment received? Your device will unlock automatically.</string>
+
+    <string name="setup_title">LockPilot is active on this device</string>
+    <string name="setup_body">This device is registered to an installment plan. No action needed unless a payment is overdue.</string>
+</resources>

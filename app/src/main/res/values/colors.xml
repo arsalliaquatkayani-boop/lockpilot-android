@@ -1,0 +1,8 @@
+<resources>
+    <color name="ink">#111113</color>
+    <color name="ink_deep">#09090A</color>
+    <color name="paper">#FAFAF9</color>
+    <color name="accent">#3860FF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="slate">#9A9A9F</color>
+</resources>

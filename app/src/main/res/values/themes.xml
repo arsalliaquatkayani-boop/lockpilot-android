@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.LockPilot" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/paper</item>
+    </style>
+
+    <style name="Theme.LockPilot.LockScreen" parent="Theme.LockPilot">
+        <item name="android:windowBackground">@color/ink_deep</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/ink_deep</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Deliberately minimal. LockPilot's trust promise is that it only reads
+  lock state and payment status, and does not access personal data — so we
+  only declare the device-admin policy we actually use (force-lock), not
+  wipe-data, password management, or camera/keyguard restrictions that a
+  typical MDM admin profile would request.
+-->
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <force-lock />
+    </uses-policies>
+</device-admin>
