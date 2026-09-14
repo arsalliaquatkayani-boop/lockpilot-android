@@ -1,6 +1,12 @@
 <resources>
-    <string name="app_name">LockPilot</string>
-    <string name="device_admin_description">Lets LockPilot lock this device automatically if an installment payment becomes overdue, and unlock it automatically once payment is received.</string>
+    <!-- Deliberately low-key: this is what shows in the app drawer, Settings,
+         and the recent-apps switcher — a customer sees this name and icon,
+         so it should read as an unremarkable device utility, not a brand.
+         It must still be visible and truthful in what it does when opened
+         or inspected in Settings — see the note in DevicePolicyHelper.kt
+         about why this app is never hidden from the user. -->
+    <string name="app_name">Device Care</string>
+    <string name="device_admin_description">Manages this device\'s installment protection: keeps it locked automatically if a payment is overdue, and unlocks it automatically once payment is received.</string>
 
     <string name="lock_title">Device Locked</string>
     <string name="lock_body">This phone is on an active installment plan. Please contact the shop below to make a payment and unlock your device.</string>

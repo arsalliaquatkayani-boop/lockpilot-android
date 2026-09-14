@@ -20,10 +20,16 @@ class MainActivity : AppCompatActivity() {
         // TODO once a backend exists: show real device-owner / pairing
         // status here instead of the static strings in activity_main.xml.
         val policyHelper = DevicePolicyHelper(this)
+        if (policyHelper.isDeviceOwner) {
+            // Idempotent — safe to re-apply every time this screen opens,
+            // so a policy added in an app update (like DISALLOW_FACTORY_RESET)
+            // takes effect on already-provisioned devices too.
+            policyHelper.applyBaselinePolicies()
+        }
         binding.setupBody.text = if (policyHelper.isDeviceOwner) {
             getString(R.string.setup_body)
         } else {
-            "LockPilot is not the Device Owner on this device yet."
+            "Not yet set as Device Owner on this device."
         }
 
         binding.testLockButton.setOnClickListener {
