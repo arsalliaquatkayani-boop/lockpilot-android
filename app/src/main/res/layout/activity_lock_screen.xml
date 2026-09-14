@@ -106,4 +106,17 @@
         app:layout_constraintStart_toStartOf="@id/lockBody"
         app:layout_constraintTop_toBottomOf="@id/contactCard" />
 
+    <!-- Debug-only: simulates a real "payment received" event until a
+         backend exists to trigger unlockDevice() for real. Remove once
+         wired to actual payment confirmation. -->
+    <Button
+        android:id="@+id/testUnlockButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Test: Simulate Payment Received"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lockFooter" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

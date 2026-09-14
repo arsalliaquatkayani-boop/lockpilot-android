@@ -12,9 +12,10 @@ import com.mylockpilot.app.databinding.ActivityLockScreenBinding
  * Owner with itself set as the only lock-task package (see
  * DevicePolicyHelper.applyBaselinePolicies).
  *
- * UNVERIFIED — needs testing on an emulator or device: does back/home/
- * recents actually stay blocked, does it survive a reboot into this same
- * screen, does stopLockTask() cleanly hand control back.
+ * Verified on the Android 17 emulator (2026-09-14): Home, Back, and Recents
+ * all fail to escape this screen once Device Owner + lock task are active.
+ * Still unverified: surviving a reboot into this same screen, and
+ * stopLockTask() cleanly handing control back (see testUnlockButton below).
  */
 class LockScreenActivity : AppCompatActivity() {
 
@@ -52,6 +53,10 @@ class LockScreenActivity : AppCompatActivity() {
                 }
             },
         )
+
+        binding.testUnlockButton.setOnClickListener {
+            onPaymentConfirmed()
+        }
     }
 
     /** Not wired to a real payment event yet — call this once the backend
