@@ -13,3 +13,8 @@ local.properties
 /app/build/
 /app/release/
 *.png
+
+# Release signing — never commit the real keystore or its passwords.
+*.jks
+*.keystore
+keystore.properties
