@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         if (pairing.isPaired) {
             schedulePeriodicSync()
+            FcmTokenManager.registerCurrentToken(this)
             goToCustomerHome()
             return
         }
@@ -60,6 +61,7 @@ class MainActivity : AppCompatActivity() {
             pairing.save(deviceId, secret)
             schedulePeriodicSync()
             triggerImmediateSync()
+            FcmTokenManager.registerCurrentToken(this)
             goToCustomerHome()
         }
     }

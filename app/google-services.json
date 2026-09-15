@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "252265842079",
+    "project_id": "lockpilot",
+    "storage_bucket": "lockpilot.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:252265842079:android:211aca9bab90b1d10669aa",
+        "android_client_info": {
+          "package_name": "com.mylockpilot.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9kgXvIlGUjUdDEXFOis35uvIV8x26e6I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

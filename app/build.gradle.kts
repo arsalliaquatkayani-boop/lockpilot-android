@@ -16,6 +16,17 @@ if (hasReleaseSigning) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Push notifications (Firebase Cloud Messaging) only work once a real
+// Firebase project's google-services.json is dropped in this folder — see
+// FIREBASE_SETUP.md. The google-services plugin fails the build if that
+// file is missing, so it's applied conditionally: without the file, the app
+// still builds and runs fine, it just falls back to the 15-minute
+// background check instead of instant push delivery.
+val hasFirebaseConfig = file("google-services.json").exists()
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.mylockpilot.app"
     compileSdk = 35
@@ -69,4 +80,11 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // The SDK itself compiles fine even without google-services.json — only
+    // FirebaseApp.initializeApp() (which the google-services plugin wires up
+    // automatically) needs that file. FcmTokenManager guards every call so
+    // the app degrades to the 15-minute background check when it's absent.
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-messaging")
 }

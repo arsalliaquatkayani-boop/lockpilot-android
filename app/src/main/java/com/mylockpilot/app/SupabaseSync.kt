@@ -25,7 +25,12 @@ object SupabaseSync {
     class SyncException(message: String) : Exception(message)
 
     /** Blocking network call — always run this from a background thread. */
-    private fun callRpc(functionName: String, deviceId: String, deviceSecret: String): String {
+    private fun callRpc(
+        functionName: String,
+        deviceId: String,
+        deviceSecret: String,
+        extraParams: Map<String, String> = emptyMap(),
+    ): String {
         val url = URL("$SUPABASE_URL/rest/v1/rpc/$functionName")
         val connection = url.openConnection() as HttpURLConnection
         try {
@@ -40,6 +45,7 @@ object SupabaseSync {
             val body = JSONObject().apply {
                 put("p_device_id", deviceId)
                 put("p_device_secret", deviceSecret)
+                extraParams.forEach { (key, value) -> put(key, value) }
             }
             OutputStreamWriter(connection.outputStream).use { it.write(body.toString()) }
 
@@ -68,4 +74,11 @@ object SupabaseSync {
      *  lockpilot-backend/migrations/006_customer_view.sql for the shape. */
     fun fetchCustomerView(deviceId: String, deviceSecret: String): JSONObject =
         JSONObject(callRpc("get_device_customer_view", deviceId, deviceSecret))
+
+    /** Lets this device receive instant "go check now" pushes instead of
+     *  waiting for the next 15-minute background check — see
+     *  lockpilot-backend/migrations/007_push_notifications.sql. */
+    fun registerFcmToken(deviceId: String, deviceSecret: String, fcmToken: String) {
+        callRpc("register_fcm_token", deviceId, deviceSecret, mapOf("p_fcm_token" to fcmToken))
+    }
 }

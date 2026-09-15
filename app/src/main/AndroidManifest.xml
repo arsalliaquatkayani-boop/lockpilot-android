@@ -79,5 +79,17 @@
             </intent-filter>
         </receiver>
 
+        <!-- Instant "go check now" delivery — see LockPilotMessagingService
+             and lockpilot-backend/supabase/functions/send-lock-push. A
+             harmless no-op without google-services.json configured; the
+             15-minute background check keeps working either way. -->
+        <service
+            android:name=".LockPilotMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>
