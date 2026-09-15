@@ -25,8 +25,8 @@ object SupabaseSync {
     class SyncException(message: String) : Exception(message)
 
     /** Blocking network call — always run this from a background thread. */
-    fun fetchShouldBeLocked(deviceId: String, deviceSecret: String): Boolean {
-        val url = URL("$SUPABASE_URL/rest/v1/rpc/get_device_lock_state")
+    private fun callRpc(functionName: String, deviceId: String, deviceSecret: String): String {
+        val url = URL("$SUPABASE_URL/rest/v1/rpc/$functionName")
         val connection = url.openConnection() as HttpURLConnection
         try {
             connection.requestMethod = "POST"
@@ -52,11 +52,20 @@ object SupabaseSync {
                 throw SyncException(message?.takeIf { it.isNotBlank() } ?: "Sync failed (HTTP $status)")
             }
 
-            val rows = JSONArray(responseText)
-            if (rows.length() == 0) throw SyncException("Device not found")
-            return rows.getJSONObject(0).getBoolean("should_be_locked")
+            return responseText
         } finally {
             connection.disconnect()
         }
     }
+
+    fun fetchShouldBeLocked(deviceId: String, deviceSecret: String): Boolean {
+        val rows = JSONArray(callRpc("get_device_lock_state", deviceId, deviceSecret))
+        if (rows.length() == 0) throw SyncException("Device not found")
+        return rows.getJSONObject(0).getBoolean("should_be_locked")
+    }
+
+    /** Everything the customer-facing home screen shows — see
+     *  lockpilot-backend/migrations/006_customer_view.sql for the shape. */
+    fun fetchCustomerView(deviceId: String, deviceSecret: String): JSONObject =
+        JSONObject(callRpc("get_device_customer_view", deviceId, deviceSecret))
 }

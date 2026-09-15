@@ -1,7 +1,7 @@
 package com.mylockpilot.app
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -11,8 +11,12 @@ import com.mylockpilot.app.databinding.ActivityMainBinding
 import java.util.concurrent.TimeUnit
 
 /**
- * Placeholder setup/status screen. Shown once when staff open the app
- * during provisioning; not part of the customer-facing lock flow.
+ * Staff-only setup screen. Shown once, right after a phone is provisioned
+ * (Device Owner granted via the QR-code flow or, in development, `adb shell
+ * dpm set-device-owner`), so staff can enter the pairing code from the
+ * dashboard's Devices panel. Once paired, this screen never shows again —
+ * every future launch redirects straight to CustomerHomeActivity, which is
+ * what the customer actually uses.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -21,10 +25,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         pairing = PairingStore(this)
+
+        if (pairing.isPaired) {
+            schedulePeriodicSync()
+            goToCustomerHome()
+            return
+        }
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val policyHelper = DevicePolicyHelper(this)
         if (policyHelper.isDeviceOwner) {
@@ -38,10 +49,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             "Not yet set as Device Owner on this device."
         }
-
-        binding.testLockButton.setOnClickListener {
-            policyHelper.lockDevice(this)
-        }
+        binding.pairingStatus.text =
+            "Not paired yet — enter the pairing code shown on this device's row in the dashboard."
 
         binding.pairButton.setOnClickListener {
             val deviceId = binding.pairingDeviceIdInput.text.toString().trim()
@@ -51,26 +60,13 @@ class MainActivity : AppCompatActivity() {
             pairing.save(deviceId, secret)
             schedulePeriodicSync()
             triggerImmediateSync()
-            refreshPairingUi()
+            goToCustomerHome()
         }
-
-        binding.syncNowButton.setOnClickListener {
-            triggerImmediateSync()
-        }
-
-        refreshPairingUi()
-        if (pairing.isPaired) schedulePeriodicSync()
     }
 
-    private fun refreshPairingUi() {
-        val paired = pairing.isPaired
-        binding.pairingForm.visibility = if (paired) View.GONE else View.VISIBLE
-        binding.syncNowButton.visibility = if (paired) View.VISIBLE else View.GONE
-        binding.pairingStatus.text = if (paired) {
-            "Paired with backend"
-        } else {
-            "Not paired yet — enter the pairing code shown on this device's row in the dashboard."
-        }
+    private fun goToCustomerHome() {
+        startActivity(Intent(this, CustomerHomeActivity::class.java))
+        finish()
     }
 
     private fun schedulePeriodicSync() {

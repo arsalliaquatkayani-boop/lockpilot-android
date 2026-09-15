@@ -74,21 +74,5 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/syncNowButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Sync now" />
-
-        <!-- Debug-only affordance for testing the lock screen without
-             waiting on a real sync cycle. -->
-        <Button
-            android:id="@+id/testLockButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Test: Show Lock Screen" />
-
     </LinearLayout>
 </ScrollView>

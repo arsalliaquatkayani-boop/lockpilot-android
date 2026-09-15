@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
@@ -18,14 +19,16 @@ import com.mylockpilot.app.databinding.ActivityLockScreenBinding
  * DevicePolicyHelper.applyBaselinePolicies).
  *
  * Verified on the Android 17 emulator (2026-09-14): Home, Back, and Recents
- * all fail to escape this screen once Device Owner + lock task are active.
- * Still unverified: surviving a reboot into this same screen, and
- * stopLockTask() cleanly handing control back (see testUnlockButton below).
+ * all fail to escape this screen once Device Owner + lock task are active,
+ * and the real remote-unlock path (LockSyncWorker -> broadcast -> this
+ * activity) unlocks it automatically once should_be_locked flips to false —
+ * there is no in-app way to unlock without that, on purpose.
  */
 class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLockScreenBinding
     private lateinit var policyHelper: DevicePolicyHelper
+    private var shopPhone: String? = null
 
     // Lets LockSyncWorker unlock this screen from a background thread once
     // the backend reports the overdue payment is cleared — the worker can't
@@ -49,13 +52,15 @@ class LockScreenActivity : AppCompatActivity() {
 
         policyHelper = DevicePolicyHelper(this)
 
-        // TODO once a backend exists: replace these placeholders with the
-        // real shop name/contact for this device's owning shop, and the
-        // actual overdue amount, instead of the layout's static demo text.
-
         if (policyHelper.isDeviceOwner) {
             startLockTask()
         }
+
+        binding.shopContactText.setOnClickListener {
+            shopPhone?.let { phone -> startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))) }
+        }
+
+        loadShopContact()
 
         // Intentionally swallow back-press: the customer should not be able
         // to dismiss this screen by any normal navigation gesture.
@@ -67,10 +72,6 @@ class LockScreenActivity : AppCompatActivity() {
                 }
             },
         )
-
-        binding.testUnlockButton.setOnClickListener {
-            onPaymentConfirmed()
-        }
 
         val filter = IntentFilter(LockSyncWorker.ACTION_REMOTE_UNLOCK)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -86,8 +87,33 @@ class LockScreenActivity : AppCompatActivity() {
         unregisterReceiver(remoteUnlockReceiver)
     }
 
-    /** Called either by the test button or by LockSyncWorker once the
-     *  backend confirms this device's overdue payment is cleared. */
+    /** Fills in the real shop name/phone instead of leaving the layout blank. */
+    private fun loadShopContact() {
+        val pairing = PairingStore(this)
+        val deviceId = pairing.deviceId
+        val deviceSecret = pairing.deviceSecret
+        if (deviceId == null || deviceSecret == null) return
+
+        Thread {
+            try {
+                val view = SupabaseSync.fetchCustomerView(deviceId, deviceSecret)
+                val shopName = view.optString("shop_name").ifBlank { getString(R.string.default_shop_name) }
+                val phone = if (view.isNull("shop_phone")) null else view.optString("shop_phone").takeIf { it.isNotBlank() }
+                shopPhone = phone
+
+                runOnUiThread {
+                    binding.shopNameText.text = shopName
+                    binding.shopContactText.text = phone ?: getString(R.string.no_phone_on_file)
+                }
+            } catch (_: Exception) {
+                // Lock screen still works without this — it just can't show
+                // shop contact details until the next successful load.
+            }
+        }.start()
+    }
+
+    /** Called by LockSyncWorker once the backend confirms this device's
+     *  overdue payment is cleared — the only path that unlocks this screen. */
     private fun onPaymentConfirmed() {
         policyHelper.unlockDevice(this)
     }

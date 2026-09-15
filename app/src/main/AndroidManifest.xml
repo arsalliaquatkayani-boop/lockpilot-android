@@ -43,6 +43,14 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.LockPilot.LockScreen" />
 
+        <!-- The real home screen a customer sees every time they open this
+             app once it's paired: their plan status, shop contact, and
+             payment history. MainActivity redirects here once paired. -->
+        <activity
+            android:name=".CustomerHomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.LockPilot" />
+
         <!-- Required receiver for Device Owner status. The app becomes
              Device Owner either via `adb shell dpm set-device-owner` during
              development, or via QR-code provisioning during the Android

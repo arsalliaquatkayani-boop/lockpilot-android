@@ -15,4 +15,28 @@
 
     <string name="setup_title">LockPilot is active on this device</string>
     <string name="setup_body">This device is registered to an installment plan. No action needed unless a payment is overdue.</string>
+
+    <string name="customer_home_title_placeholder">Your installment plan</string>
+    <string name="plan_summary_label">Your plan</string>
+    <string name="shop_contact_label">Shop contact</string>
+    <string name="call_shop_button">Call shop</string>
+    <string name="payment_history_label">Payment history</string>
+    <string name="refresh_button">Refresh</string>
+
+    <string name="not_paired_message">This device is not set up yet.</string>
+    <string name="loading_message">Loading your plan…</string>
+    <string name="load_failed_message">Could not load your plan: %1$s</string>
+    <string name="default_shop_name">Your shop</string>
+    <string name="no_phone_on_file">Not available</string>
+    <string name="no_plan_on_file">No installment plan on file yet.</string>
+    <string name="status_locked">Payment overdue — this device is locked. It will unlock automatically once payment is received.</string>
+    <string name="status_paid_off">Plan fully paid off. Thank you!</string>
+    <string name="status_active">Account in good standing.</string>
+    <string name="plan_total_amount">Total plan: %1$s</string>
+    <string name="plan_installments_paid">%1$d of %2$d installments paid</string>
+    <string name="plan_remaining_balance">Remaining balance: %1$s</string>
+    <string name="payment_due_date">Due %1$s</string>
+    <string name="payment_paid_on">Paid %1$s</string>
+    <string name="payment_overdue">Overdue</string>
+    <string name="payment_upcoming">Upcoming</string>
 </resources>

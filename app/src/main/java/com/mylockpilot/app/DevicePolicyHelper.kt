@@ -3,7 +3,6 @@ package com.mylockpilot.app
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.UserManager
 
@@ -26,6 +25,9 @@ import android.os.UserManager
  * the conversation history for the fuller reasoning. Do not add
  * PackageManager component-hiding, dpm.setApplicationHidden, or similar
  * here without revisiting that decision explicitly with the user first.
+ * The same principle applies to permissions: this app asks for
+ * notifications the normal way (a system prompt during staff setup, see
+ * CustomerHomeActivity), not by silently self-granting them.
  *
  * Verified on an emulator (2026-09-14): Device Owner grant, lock-task
  * pinning (Home/Back/Recents all blocked), and unlock all work. Not yet
@@ -61,6 +63,8 @@ class DevicePolicyHelper(context: Context) {
         // different firmware via an unlocked bootloader/recovery mode with
         // physical access — no app-level API can promise that.
         dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_FACTORY_RESET)
+
+        LockNotifier.createChannel(appContext)
     }
 
     /** Call once the device is fully paid off. */
@@ -72,23 +76,21 @@ class DevicePolicyHelper(context: Context) {
     }
 
     /**
-     * Launches the unremovable overdue screen. Actual lock-task pinning
-     * happens inside LockScreenActivity.onCreate via startLockTask() —
-     * this just gets that activity on screen, including over the keyguard.
+     * Triggers the unremovable overdue screen via LockNotifier — a plain
+     * startActivity() only reliably works while this app already has a
+     * visible window of its own, so the real trigger is a full-screen-intent
+     * notification (see LockNotifier for why). Actual lock-task pinning
+     * happens inside LockScreenActivity.onCreate via startLockTask().
      */
     fun lockDevice(context: Context) {
         LockStateStore(context).isLocked = true
-        val intent = Intent(context, LockScreenActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
-        context.startActivity(intent)
+        LockNotifier.showLockScreen(context)
     }
 
     /** Called from LockScreenActivity once a payment is confirmed. */
     fun unlockDevice(activity: android.app.Activity) {
         LockStateStore(activity).isLocked = false
+        LockNotifier.cancel(activity)
         activity.stopLockTask()
         activity.finish()
     }
