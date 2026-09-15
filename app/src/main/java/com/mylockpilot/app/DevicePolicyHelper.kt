@@ -77,6 +77,7 @@ class DevicePolicyHelper(context: Context) {
      * this just gets that activity on screen, including over the keyguard.
      */
     fun lockDevice(context: Context) {
+        LockStateStore(context).isLocked = true
         val intent = Intent(context, LockScreenActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_CLEAR_TOP or
@@ -87,6 +88,7 @@ class DevicePolicyHelper(context: Context) {
 
     /** Called from LockScreenActivity once a payment is confirmed. */
     fun unlockDevice(activity: android.app.Activity) {
+        LockStateStore(activity).isLocked = false
         activity.stopLockTask()
         activity.finish()
     }

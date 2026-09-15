@@ -1,5 +1,10 @@
 package com.mylockpilot.app
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +26,15 @@ class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLockScreenBinding
     private lateinit var policyHelper: DevicePolicyHelper
+
+    // Lets LockSyncWorker unlock this screen from a background thread once
+    // the backend reports the overdue payment is cleared — the worker can't
+    // call stopLockTask() itself since that only works on the pinned activity.
+    private val remoteUnlockReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onPaymentConfirmed()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,10 +71,23 @@ class LockScreenActivity : AppCompatActivity() {
         binding.testUnlockButton.setOnClickListener {
             onPaymentConfirmed()
         }
+
+        val filter = IntentFilter(LockSyncWorker.ACTION_REMOTE_UNLOCK)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(remoteUnlockReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(remoteUnlockReceiver, filter)
+        }
     }
 
-    /** Not wired to a real payment event yet — call this once the backend
-     *  confirms a payment for this device. */
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(remoteUnlockReceiver)
+    }
+
+    /** Called either by the test button or by LockSyncWorker once the
+     *  backend confirms this device's overdue payment is cleared. */
     private fun onPaymentConfirmed() {
         policyHelper.unlockDevice(this)
     }
