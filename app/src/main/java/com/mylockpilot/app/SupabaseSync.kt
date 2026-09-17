@@ -91,4 +91,11 @@ object SupabaseSync {
         if (rows.length() == 0) return null
         return rows.getJSONObject(0).optString("frp_recovery_email").takeIf { it.isNotBlank() }
     }
+
+    /** Lets the dashboard show real confirmation that FRP protection is
+     *  actually active on this phone, instead of assuming a background task
+     *  succeeded — see lockpilot-backend/migrations/016_frp_status_tracking.sql. */
+    fun reportFrpApplied(deviceId: String, deviceSecret: String) {
+        callRpc("report_frp_applied", deviceId, deviceSecret)
+    }
 }

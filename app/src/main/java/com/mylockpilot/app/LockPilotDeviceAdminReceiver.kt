@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -23,13 +25,7 @@ class LockPilotDeviceAdminReceiver : DeviceAdminReceiver() {
         super.onEnabled(context, intent)
         Log.i(TAG, "Device admin enabled")
         DevicePolicyHelper(context).applyBaselinePolicies()
-
-        // Fires in every provisioning path (QR, USB, or adb dev setup), so
-        // this is the one place that reliably triggers FrpSetupWorker
-        // regardless of how Device Owner was granted. The worker itself
-        // retries safely if pairing hasn't happened yet or the shop hasn't
-        // configured a recovery email — see its own docstring.
-        WorkManager.getInstance(context).enqueue(OneTimeWorkRequestBuilder<FrpSetupWorker>().build())
+        scheduleFrpSetup(context)
     }
 
     override fun onProfileProvisioningComplete(context: Context, intent: Intent) {
@@ -63,6 +59,12 @@ class LockPilotDeviceAdminReceiver : DeviceAdminReceiver() {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(launchIntent)
         }
+
+        // Belt-and-suspenders with onEnabled's call below: onEnabled may
+        // have fired before pairing was ready in this QR flow, so its
+        // attempt would have deferred. Trying again right after pairing
+        // here catches that.
+        scheduleFrpSetup(context)
     }
 
     override fun onDisabled(context: Context, intent: Intent) {
@@ -72,5 +74,43 @@ class LockPilotDeviceAdminReceiver : DeviceAdminReceiver() {
 
     companion object {
         private const val TAG = "LockPilotDeviceAdmin"
+
+        /**
+         * Three layers, from fastest to most durable, because real-device
+         * testing on MIUI/Android Go found a plain background WorkManager
+         * job alone can be silently killed before it ever runs:
+         *
+         * 1. An immediate attempt on a plain background thread, right now
+         *    — succeeds if the network happens to be ready already.
+         * 2. An expedited WorkManager job — asks the OS for near-immediate,
+         *    harder-to-defer execution as a fast backup.
+         * 3. A 15-minute periodic job as a long-term safety net, in case
+         *    both faster attempts fail (e.g. no network at all yet). It
+         *    no-ops quickly via isFrpPolicyApplied() once any layer
+         *    succeeds, so it's cheap to leave running indefinitely.
+         */
+        fun scheduleFrpSetup(context: Context) {
+            Thread {
+                try {
+                    FrpSetupWorker.attemptFrpSetupNow(context)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Immediate FRP setup attempt failed, other layers will retry", e)
+                }
+            }.start()
+
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                FrpSetupWorker.WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequestBuilder<FrpSetupWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build(),
+            )
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "${FrpSetupWorker.WORK_NAME}_periodic",
+                ExistingPeriodicWorkPolicy.KEEP,
+                PeriodicWorkRequestBuilder<FrpSetupWorker>(15, TimeUnit.MINUTES).build(),
+            )
+        }
     }
 }

@@ -114,6 +114,18 @@ class DevicePolicyHelper(context: Context) {
     }
 
     /**
+     * Reads back whatever FRP policy is currently active, so callers (see
+     * FrpSetupWorker) can skip redundant network calls once it's confirmed
+     * set, rather than blindly re-fetching and re-applying forever.
+     */
+    fun isFrpPolicyApplied(): Boolean {
+        if (!isDeviceOwner) return false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false
+        val policy = dpm.getFactoryResetProtectionPolicy(adminComponent) ?: return false
+        return policy.isFactoryResetProtectionEnabled && policy.factoryResetProtectionAccounts.isNotEmpty()
+    }
+
+    /**
      * The device's own package plus whichever apps are currently set as the
      * default Phone (dialer) and Messages (SMS) apps — read fresh each time
      * rather than hardcoding a package name, since that differs by
