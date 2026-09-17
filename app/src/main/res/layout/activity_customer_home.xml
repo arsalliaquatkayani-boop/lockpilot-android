@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ink_deep"
+    android:background="@color/paper"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,13 +12,20 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginBottom="10dp"
+            android:contentDescription="@null"
+            android:src="@drawable/lockpilot_logo" />
+
         <TextView
             android:id="@+id/shopNameText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="@string/customer_home_title_placeholder"
-            android:textColor="@color/white"
+            android:textColor="@color/ink"
             android:textSize="22sp" />
 
         <TextView
@@ -52,9 +59,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            app:cardBackgroundColor="@color/card"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -74,7 +81,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ink"
                     android:textSize="14.5sp" />
 
                 <TextView
@@ -82,7 +89,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ink"
                     android:textSize="14.5sp" />
 
                 <TextView
@@ -90,7 +97,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ink"
                     android:textSize="14.5sp" />
 
                 <TextView
@@ -108,9 +115,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            app:cardBackgroundColor="@color/card"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/white"
+                    android:textColor="@color/ink"
                     android:textSize="15sp" />
 
                 <TextView
@@ -157,7 +164,7 @@
             android:layout_marginTop="22dp"
             android:fontFamily="sans-serif-medium"
             android:text="@string/payment_history_label"
-            android:textColor="@color/white"
+            android:textColor="@color/ink"
             android:textSize="15sp" />
 
         <LinearLayout

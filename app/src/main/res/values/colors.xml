@@ -1,11 +1,16 @@
 <resources>
-    <color name="ink">#111113</color>
-    <color name="ink_deep">#09090A</color>
-    <color name="paper">#FAFAF9</color>
-    <color name="accent">#3860FF</color>
+    <!-- Matches the real LockPilot brand palette (see lockpilot/src/index.css) —
+         ink/paper are for the light-themed pairing screen, ink_deep/card are
+         the dark-navy pair used for the lock/customer screens, which stay
+         dark on purpose (a serious, lock-screen-like feel) even though the
+         rest of the brand is light. -->
+    <color name="ink">#13213A</color>
+    <color name="ink_deep">#07142C</color>
+    <color name="paper">#F7F8FA</color>
+    <color name="accent">#2174FF</color>
     <color name="white">#FFFFFF</color>
-    <color name="slate">#9A9A9F</color>
-    <color name="danger">#D6432B</color>
-    <color name="success">#1E9E5A</color>
-    <color name="card">#1C1C1F</color>
+    <color name="slate">#8B98A9</color>
+    <color name="danger">#C4515F</color>
+    <color name="success">#27825B</color>
+    <color name="card">#0F1F3D</color>
 </resources>

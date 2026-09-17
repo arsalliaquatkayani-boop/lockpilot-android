@@ -3,11 +3,13 @@
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/paper</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
 
     <style name="Theme.LockPilot.LockScreen" parent="Theme.LockPilot">
-        <item name="android:windowBackground">@color/ink_deep</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/ink_deep</item>
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/paper</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:windowNoTitle">true</item>
     </style>
 </resources>

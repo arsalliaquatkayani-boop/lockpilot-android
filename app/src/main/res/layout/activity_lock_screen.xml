@@ -4,15 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ink_deep"
+    android:background="@color/paper"
     android:padding="32dp">
 
     <ImageView
         android:id="@+id/lockIcon"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:contentDescription="@null"
-        android:src="@drawable/ic_lock"
+        android:src="@drawable/lockpilot_logo"
         app:layout_constraintBottom_toTopOf="@id/lockTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +26,7 @@
         android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-medium"
         android:text="@string/lock_title"
-        android:textColor="@color/white"
+        android:textColor="@color/ink"
         android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,9 +51,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="#141416"
+        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="12dp"
-        app:cardElevation="0dp"
+        app:cardElevation="2dp"
         app:layout_constraintEnd_toEndOf="@id/lockBody"
         app:layout_constraintStart_toStartOf="@id/lockBody"
         app:layout_constraintTop_toBottomOf="@id/lockBody">
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/white"
+                android:textColor="@color/ink"
                 android:textSize="16sp" />
 
             <TextView
