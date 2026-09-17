@@ -24,6 +24,13 @@ class PairingStore(context: Context) {
             .apply()
     }
 
+    /** Lets staff fix a mistyped Device ID/pairing code without a factory
+     *  reset — clears the saved pairing so MainActivity shows the pairing
+     *  form again on next launch. */
+    fun clear() {
+        prefs.edit().clear().apply()
+    }
+
     companion object {
         private const val KEY_DEVICE_ID = "device_id"
         private const val KEY_DEVICE_SECRET = "device_secret"

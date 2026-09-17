@@ -5,6 +5,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.UserManager
+import android.provider.Telephony
+import android.telecom.TelecomManager
 
 /**
  * Thin wrapper around the Device Owner APIs LockPilot actually uses.
@@ -52,9 +54,13 @@ class DevicePolicyHelper(context: Context) {
         // Customer can't uninstall this app while payments are outstanding.
         dpm.setUninstallBlocked(adminComponent, appContext.packageName, true)
 
-        // Only our own package may be pinned in lock task mode — this is
-        // what makes the overdue screen unremovable via Home/Recents.
-        dpm.setLockTaskPackages(adminComponent, arrayOf(appContext.packageName))
+        // Our own package, plus the device's default Phone and Messages
+        // apps, may run in lock task mode — this is what makes the overdue
+        // screen unremovable via Home/Recents while still letting a locked
+        // customer make/answer calls and send/receive texts, which is a
+        // basic safety expectation even for a phone that's locked over a
+        // missed payment.
+        dpm.setLockTaskPackages(adminComponent, allowedLockTaskPackages())
 
         // Blocks the "Erase all data / factory reset" option in Settings.
         // Honest caveat: this blocks the normal in-Settings reset path on a
@@ -65,6 +71,34 @@ class DevicePolicyHelper(context: Context) {
         dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_FACTORY_RESET)
 
         LockNotifier.createChannel(appContext)
+    }
+
+    /**
+     * The device's own package plus whichever apps are currently set as the
+     * default Phone (dialer) and Messages (SMS) apps — read fresh each time
+     * rather than hardcoding a package name, since that differs by
+     * manufacturer (Samsung, Pixel, etc. all ship their own dialer/messaging
+     * apps under different package names).
+     */
+    private fun allowedLockTaskPackages(): Array<String> {
+        val packages = mutableSetOf(appContext.packageName)
+
+        try {
+            val telecomManager =
+                appContext.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager
+            telecomManager?.defaultDialerPackage?.let { packages.add(it) }
+        } catch (_: Exception) {
+            // Falls back to just our own package — the lock screen's own
+            // "contact shop" dial-out button still works via ACTION_DIAL.
+        }
+
+        try {
+            Telephony.Sms.getDefaultSmsPackage(appContext)?.let { packages.add(it) }
+        } catch (_: Exception) {
+            // No default SMS app configured — nothing to add.
+        }
+
+        return packages.toTypedArray()
     }
 
     /** Call once the device is fully paid off. */

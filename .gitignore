@@ -12,6 +12,7 @@ local.properties
 *.aab
 /app/build/
 /app/release/
+/app/debug/
 *.png
 
 # Release signing — never commit the real keystore or its passwords.

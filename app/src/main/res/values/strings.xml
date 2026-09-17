@@ -12,6 +12,9 @@
     <string name="lock_body">This phone is on an active installment plan. Please contact the shop below to make a payment and unlock your device.</string>
     <string name="lock_contact_label">Please contact</string>
     <string name="lock_footer">Payment received? Your device will unlock automatically.</string>
+    <string name="lock_essential_apps_label">You can still make calls and send texts</string>
+    <string name="lock_open_phone">Phone</string>
+    <string name="lock_open_messages">Messages</string>
 
     <string name="setup_title">LockPilot is active on this device</string>
     <string name="setup_body">This device is registered to an installment plan. No action needed unless a payment is overdue.</string>
@@ -22,6 +25,7 @@
     <string name="call_shop_button">Call shop</string>
     <string name="payment_history_label">Payment history</string>
     <string name="refresh_button">Refresh</string>
+    <string name="re_pair_device">Re-pair this device</string>
 
     <string name="not_paired_message">This device is not set up yet.</string>
     <string name="loading_message">Loading your plan…</string>
@@ -33,6 +37,9 @@
     <string name="status_paid_off">Plan fully paid off. Thank you!</string>
     <string name="status_active">Account in good standing.</string>
     <string name="plan_total_amount">Total plan: %1$s</string>
+    <string name="plan_installment_amount">Installment: %1$s / %2$s</string>
+    <string name="frequency_month">month</string>
+    <string name="frequency_week">week</string>
     <string name="plan_installments_paid">%1$d of %2$d installments paid</string>
     <string name="plan_remaining_balance">Remaining balance: %1$s</string>
     <string name="payment_due_date">Due %1$s</string>

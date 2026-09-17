@@ -78,6 +78,14 @@
                     android:textSize="14.5sp" />
 
                 <TextView
+                    android:id="@+id/planInstallmentText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@color/white"
+                    android:textSize="14.5sp" />
+
+                <TextView
                     android:id="@+id/planPaidText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -173,6 +181,16 @@
             android:layout_marginTop="12dp"
             android:gravity="center"
             android:textColor="@color/slate"
+            android:textSize="12.5sp" />
+
+        <TextView
+            android:id="@+id/rePairText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="@string/re_pair_device"
+            android:textColor="@color/accent"
             android:textSize="12.5sp" />
 
     </LinearLayout>

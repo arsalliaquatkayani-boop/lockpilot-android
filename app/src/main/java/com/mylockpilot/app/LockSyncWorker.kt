@@ -30,10 +30,17 @@ class LockSyncWorker(appContext: Context, params: WorkerParameters) :
             if (shouldBeLocked && !lockState.isLocked) {
                 DevicePolicyHelper(applicationContext).lockDevice(applicationContext)
             } else if (!shouldBeLocked && lockState.isLocked) {
-                // Unlocking has to happen on whichever LockScreenActivity
-                // instance is actually pinned to the foreground (it must
-                // call stopLockTask() on itself) — a broadcast lets it react
-                // even though this worker has no activity reference.
+                // Correct the persisted state unconditionally first — if the
+                // pinned LockScreenActivity's process got killed by the OS
+                // (screen off + low memory, common on entry-level phones)
+                // there's no receiver left to catch the broadcast below, and
+                // without this line every future worker run would see
+                // lockState.isLocked still true and keep re-sending a
+                // broadcast nobody is listening for, forever. The broadcast
+                // is still sent too, for the common case where the activity
+                // is alive and can stopLockTask() on itself immediately.
+                lockState.isLocked = false
+                LockNotifier.cancel(applicationContext)
                 applicationContext.sendBroadcast(
                     Intent(ACTION_REMOTE_UNLOCK).setPackage(applicationContext.packageName),
                 )

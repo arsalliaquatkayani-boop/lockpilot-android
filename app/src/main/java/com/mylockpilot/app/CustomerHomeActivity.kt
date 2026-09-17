@@ -51,6 +51,11 @@ class CustomerHomeActivity : AppCompatActivity() {
         }
 
         binding.refreshButton.setOnClickListener { loadCustomerView() }
+        binding.rePairText.setOnClickListener {
+            pairing.clear()
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
         binding.callShopButton.setOnClickListener {
             shopPhone?.let { phone ->
                 startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone")))
@@ -120,18 +125,26 @@ class CustomerHomeActivity : AppCompatActivity() {
     private fun renderPlan(plan: JSONObject?) {
         if (plan == null) {
             binding.planTotalText.text = getString(R.string.no_plan_on_file)
+            binding.planInstallmentText.text = ""
             binding.planPaidText.text = ""
             binding.planRemainingText.text = ""
             return
         }
 
         val totalAmount = plan.optDouble("total_amount", 0.0)
+        val installmentAmount = plan.optDouble("installment_amount", 0.0)
+        val frequency = plan.optString("frequency", "monthly")
         val paidCount = plan.optInt("paid_count", 0)
         val remainingCount = plan.optInt("remaining_count", 0)
         val remainingBalance = plan.optDouble("remaining_balance", 0.0)
         val installmentCount = plan.optInt("installment_count", paidCount + remainingCount)
 
         binding.planTotalText.text = getString(R.string.plan_total_amount, formatRs(totalAmount))
+        binding.planInstallmentText.text = getString(
+            R.string.plan_installment_amount,
+            formatRs(installmentAmount),
+            if (frequency == "weekly") getString(R.string.frequency_week) else getString(R.string.frequency_month),
+        )
         binding.planPaidText.text = getString(R.string.plan_installments_paid, paidCount, installmentCount)
         binding.planRemainingText.text = getString(R.string.plan_remaining_balance, formatRs(remainingBalance))
     }
