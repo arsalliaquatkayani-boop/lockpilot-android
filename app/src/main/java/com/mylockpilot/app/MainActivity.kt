@@ -35,6 +35,21 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // The dashboard's USB setup flow launches this activity directly
+        // with these two extras (via `adb shell am start ... -e device_id
+        // ... -e pairing_code ...`) right after granting Device Owner, so
+        // staff never have to type the pairing code by hand.
+        val extraDeviceId = intent.getStringExtra("device_id")
+        val extraPairingCode = intent.getStringExtra("pairing_code")
+        if (!extraDeviceId.isNullOrBlank() && !extraPairingCode.isNullOrBlank()) {
+            pairing.save(extraDeviceId, extraPairingCode)
+            schedulePeriodicSync()
+            triggerImmediateSync()
+            FcmTokenManager.registerCurrentToken(this)
+            goToCustomerHome()
+            return
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
