@@ -75,24 +75,6 @@ class DevicePolicyHelper(context: Context) {
         // physical access — no app-level API can promise that.
         dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_FACTORY_RESET)
 
-        // The real backstop against the Settings-block above: recovery-mode
-        // (hardware button) factory reset can't be blocked by any app — it's
-        // a deliberate Android safety valve. What we CAN do is make that
-        // reset useless to whoever performs it. This requires no Google
-        // account to ever be signed into the customer's phone — the FRP_
-        // ACCOUNT below is a challenge identity only, checked purely against
-        // Google's servers after an unauthorized reset. Whoever resets the
-        // phone this way is met with a "verify this account" screen for an
-        // account they don't control and can't sign into, so the reset gains
-        // them a bricked phone, not a free one.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val frpPolicy = FactoryResetProtectionPolicy.Builder()
-                .setFactoryResetProtectionEnabled(true)
-                .setFactoryResetProtectionAccounts(listOf(FRP_RECOVERY_ACCOUNT))
-                .build()
-            dpm.setFactoryResetProtectionPolicy(adminComponent, frpPolicy)
-        }
-
         // Blocks turning USB debugging back on once the phone leaves the
         // shop's hands. Our own setup already happened before this runs, so
         // this only stops a customer from re-enabling it afterward to poke
@@ -101,6 +83,34 @@ class DevicePolicyHelper(context: Context) {
         dpm.addUserRestriction(adminComponent, UserManager.DISALLOW_DEBUGGING_FEATURES)
 
         LockNotifier.createChannel(appContext)
+    }
+
+    /**
+     * The real backstop against DISALLOW_FACTORY_RESET above: recovery-mode
+     * (hardware button) factory reset can't be blocked by any app — it's a
+     * deliberate Android safety valve. What we CAN do is make that reset
+     * useless to whoever performs it. This requires no Google account to
+     * ever be signed into the customer's phone — recoveryEmail is a
+     * challenge identity only, checked purely against Google's servers
+     * after an unauthorized reset. Whoever resets the phone this way is met
+     * with a "verify this account" screen for an account they don't control
+     * and can't sign into, so the reset gains them a bricked phone, not a
+     * free one.
+     *
+     * Called separately from applyBaselinePolicies (not as part of it)
+     * because this is per-shop configuration (see FrpSetupWorker) fetched
+     * over the network using this device's own pairing credentials, not
+     * something known at provisioning time.
+     */
+    fun applyFrpPolicy(recoveryEmail: String) {
+        if (!isDeviceOwner) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+
+        val frpPolicy = FactoryResetProtectionPolicy.Builder()
+            .setFactoryResetProtectionEnabled(true)
+            .setFactoryResetProtectionAccounts(listOf(recoveryEmail))
+            .build()
+        dpm.setFactoryResetProtectionPolicy(adminComponent, frpPolicy)
     }
 
     /**
@@ -172,16 +182,5 @@ class DevicePolicyHelper(context: Context) {
 
         /** True only on API levels where lock task mode + Device Owner are reliable. */
         val isSupportedApiLevel = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-
-        /**
-         * REPLACE with a real Google account you create and control before
-         * shipping to real customers. This account is never signed into any
-         * phone — its only job is to be the thing Google's Factory Reset
-         * Protection asks for if a customer wipes a device via recovery
-         * mode. Keep its password (and 2-Step Verification) known only to
-         * you; anyone who can pass that challenge can un-brick a reset
-         * phone.
-         */
-        private const val FRP_RECOVERY_ACCOUNT = "REPLACE-ME@gmail.com"
     }
 }

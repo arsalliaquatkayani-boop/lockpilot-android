@@ -23,6 +23,13 @@ class LockPilotDeviceAdminReceiver : DeviceAdminReceiver() {
         super.onEnabled(context, intent)
         Log.i(TAG, "Device admin enabled")
         DevicePolicyHelper(context).applyBaselinePolicies()
+
+        // Fires in every provisioning path (QR, USB, or adb dev setup), so
+        // this is the one place that reliably triggers FrpSetupWorker
+        // regardless of how Device Owner was granted. The worker itself
+        // retries safely if pairing hasn't happened yet or the shop hasn't
+        // configured a recovery email — see its own docstring.
+        WorkManager.getInstance(context).enqueue(OneTimeWorkRequestBuilder<FrpSetupWorker>().build())
     }
 
     override fun onProfileProvisioningComplete(context: Context, intent: Intent) {

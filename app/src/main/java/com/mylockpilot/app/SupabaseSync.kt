@@ -81,4 +81,14 @@ object SupabaseSync {
     fun registerFcmToken(deviceId: String, deviceSecret: String, fcmToken: String) {
         callRpc("register_fcm_token", deviceId, deviceSecret, mapOf("p_fcm_token" to fcmToken))
     }
+
+    /** The shop's own Factory Reset Protection recovery account, configured
+     *  on their dashboard's Settings page — see
+     *  lockpilot-backend/migrations/015_per_shop_frp.sql. Null/blank if the
+     *  shop hasn't set one up yet. */
+    fun fetchFrpRecoveryEmail(deviceId: String, deviceSecret: String): String? {
+        val rows = JSONArray(callRpc("get_device_frp_email", deviceId, deviceSecret))
+        if (rows.length() == 0) return null
+        return rows.getJSONObject(0).optString("frp_recovery_email").takeIf { it.isNotBlank() }
+    }
 }
